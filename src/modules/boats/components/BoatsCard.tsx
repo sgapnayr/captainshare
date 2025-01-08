@@ -1,69 +1,109 @@
-
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { boats } from "@prisma/client";
+import { Boat } from "@prisma/client";
 import axios from "axios";
 
 export function BoatsCard() {
-  const [data, setData] = useState<boats[]>([]);
-  const [newName, setNewName] = useState("");
-  const [editName, setEditName] = useState<string | null>(null);
-  const [editId, setEditId] = useState<string | null>(null);
+  const [data, setData] = useState<Boat[]>([]);
+  const [newBoat, setNewBoat] = useState<
+    Omit<Boat, "id" | "createdAt" | "updatedAt">
+  >({
+    name: "",
+    type: "",
+    capacity: 0,
+    location: "",
+    licenseRequired: [],
+    captainShareCertificationsRequired: [],
+    ownerIds: [],
+    rateWillingToPay: 0,
+    preferredCaptains: [],
+    make: "",
+    model: "",
+    year: new Date().getFullYear(),
+    color: "",
+    hin: "",
+    motorDetails: "",
+    commercialUse: false,
+  });
+  const [editBoat, setEditBoat] = useState<Boat | null>(null);
 
-  // Fetch all data
+  // Fetch all boats
   const fetchData = async () => {
     try {
+      console.log("Fetching boats...");
       const response = await axios.get("/api/boats");
+      console.log(response);
       setData(response.data);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching boats:", error);
     }
   };
 
-  // Create a new resource
-  const createData = async () => {
-    if (!newName.trim()) return alert("Name is required");
+  // Create a new boat
+  const createBoat = async () => {
     try {
-      const response = await axios.post("/api/boats", { name: newName });
+      console.log(newBoat, "NEW BOAT");
+      const response = await axios.post("/api/boats", newBoat as Boat);
       setData([...data, response.data]);
-      setNewName("");
+      resetNewBoatForm();
     } catch (error) {
-      console.error("Error creating data:", error);
+      console.error("Error creating boat:", error);
     }
   };
 
-  // Update a resource
-  const updateData = async () => {
-    if (!editId || !editName?.trim()) return alert("Name is required");
+  // Update a boat
+  const updateBoat = async () => {
+    if (!editBoat) return;
     try {
-      const response = await axios.put(`/api/boats?id=${editId}`, {
-        name: editName,
-      });
-      setData(
-        data.map((item) =>
-          item.id === editId ? { ...item, name: response.data.name } : item
-        )
+      const response = await axios.put(
+        `/api/boats?id=${editBoat.id}`,
+        editBoat
       );
-      setEditId(null);
-      setEditName("");
+      setData(
+        data.map((item) => (item.id === editBoat.id ? response.data : item))
+      );
+      setEditBoat(null);
     } catch (error) {
-      console.error("Error updating data:", error);
+      console.error("Error updating boat:", error);
     }
   };
 
-  // Delete a resource
-  const deleteData = async (id: string) => {
+  // Delete a boat
+  const deleteBoat = async (id: string) => {
     try {
       await axios.delete(`/api/boats?id=${id}`);
       setData(data.filter((item) => item.id !== id));
     } catch (error) {
-      console.error("Error deleting data:", error);
+      console.error("Error deleting boat:", error);
     }
   };
 
+  const resetNewBoatForm = () => {
+    setNewBoat({
+      name: "",
+      type: "",
+      capacity: 0,
+      location: "",
+      licenseRequired: [],
+      captainShareCertificationsRequired: [],
+      ownerIds: [],
+      rateWillingToPay: 0,
+      preferredCaptains: [],
+      make: "",
+      model: "",
+      year: new Date().getFullYear(),
+      color: "",
+      hin: "",
+      motorDetails: "",
+      commercialUse: false,
+    });
+  };
+
   useEffect(() => {
+    console.log("HER");
     fetchData();
+    console.log("HER");
   }, []);
 
   return (
@@ -72,14 +112,74 @@ export function BoatsCard() {
 
       {/* Create Section */}
       <div>
-        <h2>Create Boats</h2>
+        <h2>Create a New Boat</h2>
         <input
           type="text"
-          value={newName ?? ""}
-          onChange={(e) => setNewName(e.target.value)}
-          placeholder="Enter name"
+          value={newBoat.name}
+          onChange={(e) => setNewBoat({ ...newBoat, name: e.target.value })}
+          placeholder="Name"
         />
-        <button onClick={createData}>Create</button>
+        <input
+          type="text"
+          value={newBoat.type}
+          onChange={(e) => setNewBoat({ ...newBoat, type: e.target.value })}
+          placeholder="Type"
+        />
+        <input
+          type="number"
+          value={newBoat.capacity}
+          onChange={(e) =>
+            setNewBoat({ ...newBoat, capacity: parseInt(e.target.value) || 0 })
+          }
+          placeholder="Capacity"
+        />
+        <input
+          type="text"
+          value={newBoat.location}
+          onChange={(e) => setNewBoat({ ...newBoat, location: e.target.value })}
+          placeholder="Location"
+        />
+        <input
+          type="number"
+          value={newBoat.rateWillingToPay}
+          onChange={(e) =>
+            setNewBoat({
+              ...newBoat,
+              rateWillingToPay: parseFloat(e.target.value) || 0,
+            })
+          }
+          placeholder="Rate Willing to Pay"
+        />
+        <input
+          type="text"
+          value={newBoat.make}
+          onChange={(e) => setNewBoat({ ...newBoat, make: e.target.value })}
+          placeholder="Make"
+        />
+        <input
+          type="text"
+          value={newBoat.model}
+          onChange={(e) => setNewBoat({ ...newBoat, model: e.target.value })}
+          placeholder="Model"
+        />
+        <input
+          type="number"
+          value={newBoat.year}
+          onChange={(e) =>
+            setNewBoat({
+              ...newBoat,
+              year: parseInt(e.target.value) || new Date().getFullYear(),
+            })
+          }
+          placeholder="Year"
+        />
+        <input
+          type="text"
+          value={newBoat.color}
+          onChange={(e) => setNewBoat({ ...newBoat, color: e.target.value })}
+          placeholder="Color"
+        />
+        <button onClick={createBoat}>Create</button>
       </div>
 
       {/* List Section */}
@@ -87,27 +187,26 @@ export function BoatsCard() {
         <h2>Boats List</h2>
         {data.map((item) => (
           <div key={item.id} style={{ marginBottom: "10px" }}>
-            {editId === item.id ? (
-              // Edit Mode
+            {editBoat && editBoat.id === item.id ? (
               <div>
                 <input
                   type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Enter new name"
+                  value={editBoat.name}
+                  onChange={(e) =>
+                    setEditBoat({ ...editBoat, name: e.target.value })
+                  }
+                  placeholder="Name"
                 />
-                <button onClick={updateData}>Save</button>
-                <button onClick={() => setEditId(null)}>Cancel</button>
+                <button onClick={updateBoat}>Save</button>
+                <button onClick={() => setEditBoat(null)}>Cancel</button>
               </div>
             ) : (
-              // Display Mode
               <div>
-                <span>{item.name}</span>
-                <button onClick={() => {
-                  setEditId(item.id);
-                  setEditName(item.name);
-                }}>Edit</button>
-                <button onClick={() => deleteData(item.id)}>Delete</button>
+                <span>
+                  {item.name} - {item.type} ({item.capacity} people)
+                </span>
+                <button onClick={() => setEditBoat(item)}>Edit</button>
+                <button onClick={() => deleteBoat(item.id)}>Delete</button>
               </div>
             )}
           </div>

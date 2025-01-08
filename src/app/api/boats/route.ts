@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { 
-  getAllBoats, 
-  getBoatsById, 
-  createBoats, 
-  updateBoats, 
-  deleteBoats 
+import {
+  getAllBoats,
+  getBoatsById,
+  createBoats,
+  updateBoats,
+  deleteBoats,
 } from "../../../modules/boats/services/boatsService";
 
 export async function GET(request: Request) {
