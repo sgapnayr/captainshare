@@ -10,10 +10,10 @@ export function BoatsCard() {
     Omit<Boat, "id" | "createdAt" | "updatedAt">
   >({
     name: "",
-    type: "",
+    type: "Pontoon",
     capacity: 0,
-    location: "",
-    licenseRequired: [],
+    location: "Lake Austin",
+    licenseRequired: ["Foundation"],
     captainShareCertificationsRequired: [],
     ownerIds: [],
     rateWillingToPay: 0,
@@ -26,25 +26,23 @@ export function BoatsCard() {
     motorDetails: "",
     commercialUse: false,
   });
-  const [editBoat, setEditBoat] = useState<Boat | null>(null);
+  const [editBoat, setEditBoat] = useState<Omit<
+    Boat,
+    "createdAt" | "updatedAt"
+  > | null>(null);
 
-  // Fetch all boats
   const fetchData = async () => {
     try {
-      console.log("Fetching boats...");
       const response = await axios.get("/api/boats");
-      console.log(response);
       setData(response.data);
     } catch (error) {
       console.error("Error fetching boats:", error);
     }
   };
 
-  // Create a new boat
   const createBoat = async () => {
     try {
-      console.log(newBoat, "NEW BOAT");
-      const response = await axios.post("/api/boats", newBoat as Boat);
+      const response = await axios.post("/api/boats", newBoat);
       setData([...data, response.data]);
       resetNewBoatForm();
     } catch (error) {
@@ -52,7 +50,6 @@ export function BoatsCard() {
     }
   };
 
-  // Update a boat
   const updateBoat = async () => {
     if (!editBoat) return;
     try {
@@ -69,7 +66,6 @@ export function BoatsCard() {
     }
   };
 
-  // Delete a boat
   const deleteBoat = async (id: string) => {
     try {
       await axios.delete(`/api/boats?id=${id}`);
@@ -82,10 +78,10 @@ export function BoatsCard() {
   const resetNewBoatForm = () => {
     setNewBoat({
       name: "",
-      type: "",
+      type: "Pontoon",
       capacity: 0,
-      location: "",
-      licenseRequired: [],
+      location: "Lake Austin",
+      licenseRequired: ["Foundation"],
       captainShareCertificationsRequired: [],
       ownerIds: [],
       rateWillingToPay: 0,
@@ -101,114 +97,142 @@ export function BoatsCard() {
   };
 
   useEffect(() => {
-    console.log("HER");
     fetchData();
-    console.log("HER");
   }, []);
 
+  const boatTypes = ["Pontoon", "Wakeboat", "Fishing Boat", "Yacht", "Other"];
+  const locations = ["Lake Austin", "Lake Travis"];
+  const licenseOptions = ["Foundation", "PBO", "USCG"];
+
   return (
-    <div>
-      <h1>Boats</h1>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-4">Boats</h1>
 
       {/* Create Section */}
-      <div>
-        <h2>Create a New Boat</h2>
-        <input
-          type="text"
-          value={newBoat.name}
-          onChange={(e) => setNewBoat({ ...newBoat, name: e.target.value })}
-          placeholder="Name"
-        />
-        <input
-          type="text"
-          value={newBoat.type}
-          onChange={(e) => setNewBoat({ ...newBoat, type: e.target.value })}
-          placeholder="Type"
-        />
-        <input
-          type="number"
-          value={newBoat.capacity}
-          onChange={(e) =>
-            setNewBoat({ ...newBoat, capacity: parseInt(e.target.value) || 0 })
-          }
-          placeholder="Capacity"
-        />
-        <input
-          type="text"
-          value={newBoat.location}
-          onChange={(e) => setNewBoat({ ...newBoat, location: e.target.value })}
-          placeholder="Location"
-        />
-        <input
-          type="number"
-          value={newBoat.rateWillingToPay}
-          onChange={(e) =>
-            setNewBoat({
-              ...newBoat,
-              rateWillingToPay: parseFloat(e.target.value) || 0,
-            })
-          }
-          placeholder="Rate Willing to Pay"
-        />
-        <input
-          type="text"
-          value={newBoat.make}
-          onChange={(e) => setNewBoat({ ...newBoat, make: e.target.value })}
-          placeholder="Make"
-        />
-        <input
-          type="text"
-          value={newBoat.model}
-          onChange={(e) => setNewBoat({ ...newBoat, model: e.target.value })}
-          placeholder="Model"
-        />
-        <input
-          type="number"
-          value={newBoat.year}
-          onChange={(e) =>
-            setNewBoat({
-              ...newBoat,
-              year: parseInt(e.target.value) || new Date().getFullYear(),
-            })
-          }
-          placeholder="Year"
-        />
-        <input
-          type="text"
-          value={newBoat.color}
-          onChange={(e) => setNewBoat({ ...newBoat, color: e.target.value })}
-          placeholder="Color"
-        />
-        <button onClick={createBoat}>Create</button>
+      <div className="p-4 bg-white shadow-lg rounded-lg mb-6 text-black">
+        <h2 className="text-2xl font-semibold mb-4">Create a New Boat</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block font-semibold">Name</label>
+            <input
+              type="text"
+              value={newBoat.name}
+              onChange={(e) => setNewBoat({ ...newBoat, name: e.target.value })}
+              placeholder="Name"
+              className="p-2 border rounded w-full"
+            />
+          </div>
+          <div>
+            <label className="block font-semibold">Type</label>
+            <select
+              value={newBoat.type}
+              onChange={(e) => setNewBoat({ ...newBoat, type: e.target.value })}
+              className="p-2 border rounded w-full"
+            >
+              {boatTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block font-semibold">Capacity</label>
+            <input
+              type="number"
+              value={newBoat.capacity}
+              onChange={(e) =>
+                setNewBoat({
+                  ...newBoat,
+                  capacity: parseInt(e.target.value) || 0,
+                })
+              }
+              placeholder="Capacity"
+              className="p-2 border rounded w-full"
+            />
+          </div>
+          <div>
+            <label className="block font-semibold">Location</label>
+            <select
+              value={newBoat.location}
+              onChange={(e) =>
+                setNewBoat({ ...newBoat, location: e.target.value })
+              }
+              className="p-2 border rounded w-full"
+            >
+              {locations.map((location) => (
+                <option key={location} value={location}>
+                  {location}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block font-semibold">
+              Minimum License Required
+            </label>
+            <select
+              value={newBoat.licenseRequired[0]}
+              onChange={(e) =>
+                setNewBoat({ ...newBoat, licenseRequired: [e.target.value] })
+              }
+              className="p-2 border rounded w-full"
+            >
+              {licenseOptions.map((license) => (
+                <option key={license} value={license}>
+                  {license}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block font-semibold">Rate Willing to Pay</label>
+            <input
+              type="number"
+              value={newBoat.rateWillingToPay}
+              onChange={(e) =>
+                setNewBoat({
+                  ...newBoat,
+                  rateWillingToPay: parseFloat(e.target.value) || 0,
+                })
+              }
+              placeholder="Rate Willing to Pay"
+              className="p-2 border rounded w-full"
+            />
+          </div>
+        </div>
+        <button
+          onClick={createBoat}
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded shadow"
+        >
+          Create
+        </button>
       </div>
 
       {/* List Section */}
-      <div>
-        <h2>Boats List</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black">
         {data.map((item) => (
-          <div key={item.id} style={{ marginBottom: "10px" }}>
-            {editBoat && editBoat.id === item.id ? (
-              <div>
-                <input
-                  type="text"
-                  value={editBoat.name}
-                  onChange={(e) =>
-                    setEditBoat({ ...editBoat, name: e.target.value })
-                  }
-                  placeholder="Name"
-                />
-                <button onClick={updateBoat}>Save</button>
-                <button onClick={() => setEditBoat(null)}>Cancel</button>
-              </div>
-            ) : (
-              <div>
-                <span>
-                  {item.name} - {item.type} ({item.capacity} people)
-                </span>
-                <button onClick={() => setEditBoat(item)}>Edit</button>
-                <button onClick={() => deleteBoat(item.id)}>Delete</button>
-              </div>
-            )}
+          <div key={item.id} className="p-4 bg-white shadow-lg rounded-lg">
+            <h3 className="text-xl font-semibold">{item.name}</h3>
+            <p>Type: {item.type}</p>
+            <p>Capacity: {item.capacity}</p>
+            <p>Location: {item.location}</p>
+            <p>Minimum License: {item.licenseRequired[0]}</p>
+            <p>Rate: ${item.rateWillingToPay}</p>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setEditBoat(item)}
+                className="bg-yellow-500 text-white px-4 py-2 rounded"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => deleteBoat(item.id)}
+                className="bg-red-500 text-white px-4 py-2 rounded"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         ))}
       </div>
