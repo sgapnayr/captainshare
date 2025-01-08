@@ -26,10 +26,6 @@ export function BoatsCard() {
     motorDetails: "",
     commercialUse: false,
   });
-  const [editBoat, setEditBoat] = useState<Omit<
-    Boat,
-    "createdAt" | "updatedAt"
-  > | null>(null);
 
   const fetchData = async () => {
     try {
@@ -47,22 +43,6 @@ export function BoatsCard() {
       resetNewBoatForm();
     } catch (error) {
       console.error("Error creating boat:", error);
-    }
-  };
-
-  const updateBoat = async () => {
-    if (!editBoat) return;
-    try {
-      const response = await axios.put(
-        `/api/boats?id=${editBoat.id}`,
-        editBoat
-      );
-      setData(
-        data.map((item) => (item.id === editBoat.id ? response.data : item))
-      );
-      setEditBoat(null);
-    } catch (error) {
-      console.error("Error updating boat:", error);
     }
   };
 
@@ -220,12 +200,6 @@ export function BoatsCard() {
             <p>Minimum License: {item.licenseRequired[0]}</p>
             <p>Rate: ${item.rateWillingToPay}</p>
             <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setEditBoat(item)}
-                className="bg-yellow-500 text-white px-4 py-2 rounded"
-              >
-                Edit
-              </button>
               <button
                 onClick={() => deleteBoat(item.id)}
                 className="bg-red-500 text-white px-4 py-2 rounded"
